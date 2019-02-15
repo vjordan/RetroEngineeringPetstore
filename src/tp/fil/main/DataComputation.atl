@@ -1,0 +1,43 @@
+-- @nsURI Java=http://www.eclipse.org/MoDisco/Java/0.2.incubation/java
+-- @path Data=/tp.fil/src/tp/fil/resources/Data.ecore
+
+module DataComputation;
+create OUT : Data from IN : Java;
+
+rule Model {
+	from 
+		s: Java!Model
+	to
+		t: Data!Model (
+			name <- s.name,
+			classes <- s.compilationUnits
+		)
+}
+
+rule Class {
+	from
+		s: Java!CompilationUnit (
+			s.package.name.startsWith('model')
+		)
+	to
+		t: Data!Class (
+			name <- s.name.split('.java'),
+			attributes <- s.types -> first().bodyDeclarations
+		)
+}
+
+rule Attribute {
+	from 
+		s: Java!FieldDeclaration (
+			if (not s.originalCompilationUnit.oclIsUndefined())
+				then s.originalCompilationUnit.package.name.startsWith('model')
+			else false
+			endif
+		)
+	to
+		t: Data!Attribute (
+			name <- s.fragments -> first().name,
+			type <- s.type.type.name
+		)
+}
+

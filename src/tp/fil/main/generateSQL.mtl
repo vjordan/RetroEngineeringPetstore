@@ -1,0 +1,16 @@
+[comment encoding = UTF-8 /]
+[module generateSQL('http://data')]
+[comment 'platform:/resource/tp.fil/src/tp/fil/resources/Data.ecore' /]
+
+[template public generateSQL(model : Model)]
+[comment @main/] 
+[file ('PetStore_database.sql', false, 'UTF-8')]
+[for (class : Class | model.classes)]
+CREATE TABLE [class.name/] (
+	[for (attribute : Attribute | class.attributes)]
+	[attribute.name/] [if (attribute.type = 'int')]INTEGER[elseif (attribute.type = 'double')]REAL[elseif (attribute.type = 'BigDecimal')]REAL[elseif (attribute.type = 'boolean')]BOOLEAN[else]VARCHAR(255)[/if],
+	[/for]
+);
+[/for]
+[/file]
+[/template]
